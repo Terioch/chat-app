@@ -5,18 +5,21 @@ const input = document.getElementById("input");
 const chatBox = document.getElementById("chat-box");
 
 // Retrieve data from server via a socket connection
-socket.on("chat-message", message => {
-	addNewMessage(message);
+socket.on("chat-message", ({ name, message }) => {
+	const element = `${name}: ${message}`;
+	addNewMessage(element, "gray-300");
 });
 
 socket.on("user-connected", name => {
-	addNewMessage(`${name} successfully connected`);
+	const element = `${name} successfully connected`;
+	addNewMessage(element, "blue-400");
 });
 
 // Prompt user for name and make a server request
 function getName() {
 	const name = prompt("What is your name?");
-	addNewMessage("You Joined");
+	const element = "You Joined";
+	addNewMessage(element, "blue-400");
 	socket.emit("new-user", name);
 }
 getName();
@@ -30,7 +33,8 @@ form.addEventListener("submit", e => {
 });
 
 // Append the new message to the chat box
-function addNewMessage(message) {
-	const element = `<li>${message}</li>`;
+function addNewMessage(message, colour) {
+	const classes = `bg-${colour} rounded-lg p-3 text-xl`;
+	const element = `<li class="${classes}">${message}</li>`;
 	chatBox.insertAdjacentHTML("beforeend", element);
 }
