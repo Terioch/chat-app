@@ -11,13 +11,34 @@ const io = socketio(PORT, {
 	},
 });
 
+// Stores all users by name
+const users = {};
+
+// Send message to all clients excluding the initial sender client
+function sendMessage(socket) {
+	try {
+		socket.on("send-message", message => {
+			socket.broadcast.emit("chat-message", message);
+		});
+	} catch (err) {
+		console.error(err.message);
+	}
+}
+
+// Connects a new user by name and stores that user within our users object
+function connectNewUser(socket) {
+	try {
+		socket.on("new-user", name => {
+			users[socket.id] = name;
+			socket.broadcast.emit("user-connected", name);
+		});
+	} catch (err) {
+		console.error(err.message);
+	}
+}
+
 // Initialize and emit a socket connection each time a user enters our website
 io.on("connection", socket => {
-	socket.emit(
-		"chat-message",
-		"Web Socket was initialized on the server..."
-	);
-	socket.on("send-message", message => {
-		socket.broadcast.emit("chat-message", message);
-	});
+	connectNewUser(socket);
+	sendMessage(socket);
 });
