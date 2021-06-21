@@ -18,8 +18,9 @@ const users = {};
 io.on("connection", socket => {
 	// Connects a new user by name and stores that user within our users object
 	socket.on("new-user", name => {
-		users[socket.id] = name;
-		socket.broadcast.emit("user-connected", name);
+		const username = name ? name : "Anonymous";
+		users[socket.id] = username;
+		socket.broadcast.emit("user-connected", username);
 	});
 
 	// Send message to all clients excluding the initial sender client
@@ -28,5 +29,11 @@ io.on("connection", socket => {
 			name: users[socket.id],
 			message,
 		});
+	});
+
+	// Listen for when a user disconnects from the socket server
+	socket.on("disconnect", () => {
+		socket.broadcast.emit("user-disconnected", users[socket.id]);
+		delete users[socket.id];
 	});
 });
