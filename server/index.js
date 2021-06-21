@@ -13,6 +13,11 @@ const io = socketio(PORT, {
 
 // Initialize and emit a socket connection each time a user enters our website
 io.on("connection", socket => {
-	console.log("new user");
-	socket.emit("chat-message", "Hello, World");
+	socket.emit(
+		"chat-message",
+		"Web Socket was initialized on the server..."
+	);
+	socket.on("send-message", message => {
+		socket.broadcast.emit("chat-message", message);
+	});
 });
